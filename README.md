@@ -16,3 +16,7 @@ The `docs/assets` folder includes CSS files that you can edit. In this example,
 which is a `--mode edit` export, the file is
 `docs/assets/edit-page-C05ExoCW.css`. I've modified this file to hide the
 sidebar and save button, just as an example.
+
+Test the website by entering the `docs` directory, and running
+
+`python -m http.server 8080`

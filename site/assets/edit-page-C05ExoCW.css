@@ -1,3 +1,17 @@
+/* CUSTOM */
+
+/* Hide sidebar panel buttons */
+div[data-panel-group-direction="horizontal"] > :first-child {
+  display: none;
+}
+
+/* Hide save button */
+#save-button {
+  display: none;
+}
+
+/* END CUSTOM */
+
 .multi-icon .second-icon {
   --tw-bg-opacity: 1;
   background-color: color-mix(

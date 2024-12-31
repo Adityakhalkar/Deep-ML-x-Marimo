@@ -3,16 +3,19 @@
 import marimo
 
 __generated_with = "0.9.2"
-app = marimo.App()
+app = marimo.App(css_file="/Users/adityakhalkar/Library/Application Support/mtheme/themes/deepml.css")
 
 
 @app.cell
 def __():
     import marimo as mo
-
-    mo.md("# Welcome to marimo! 🌊🍃")
+    
+    mo.md("# Interactive learn section! 🌊🍃")
     return (mo,)
-
+@app.cell
+def __(mo):
+    mo.image(src="/marimo_x_deep-ml.png")
+    return 
 
 @app.cell
 def __(mo):

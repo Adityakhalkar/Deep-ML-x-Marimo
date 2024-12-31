@@ -36,7 +36,7 @@ jobs:
           source: ./docs/
           destination: ./_site
       - name: Copy static files
-        run: cp docs/marimo_x_deep-ml.png _site/
+        run: cp marimo_x_deep-ml.png _site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

@@ -14,7 +14,7 @@ def __():
     return (mo,)
 @app.cell
 def __(mo):
-    mo.image(src="/marimo_x_deep-ml.png")
+    mo.image(src="https://i.imgur.com/8A5U0ia.png")
     return 
 
 @app.cell

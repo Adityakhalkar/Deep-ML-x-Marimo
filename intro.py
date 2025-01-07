@@ -1,474 +1,496 @@
-# Copyright 2024 Marimo. All rights reserved.
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "drawdata==0.3.6",
+#     "marimo",
+#     "numpy==2.2.1",
+#     "pandas==2.2.3",
+#     "plotly==5.24.1",
+#     "scikit-learn==1.6.0",
+# ]
+# ///
 
 import marimo
 
-__generated_with = "0.9.2"
+__generated_with = "0.10.9"
 app = marimo.App(css_file="/Users/adityakhalkar/Library/Application Support/mtheme/themes/deepml.css")
 
 
-@app.cell
-def __():
-    import marimo as mo
-    
-    mo.md("# Interactive learn section! 🌊🍃")
-    return (mo,)
-@app.cell
-def __(mo):
-    mo.image(src="https://i.imgur.com/8A5U0ia.png")
-    return 
-
-@app.cell
-def __(mo):
-    slider = mo.ui.slider(1, 22)
-    return (slider,)
-
-
-@app.cell
-def __(mo, slider):
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(
+        f"""# Understanding K-means Clustering
+
+        ## Overview
+        K-means clustering is an [unsupervised learning algorithm](https://en.wikipedia.org/wiki/Unsupervised_learning) that partitions data into k distinct clusters. Each cluster is characterized by its centroid - the mean position of all points in that cluster.
+        """
+     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(intro):
+    intro
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    intro = mo.accordion({
+        "🔄 Algorithm Steps": mo.md("""
+            1. **Initialization**: Randomly place k centroids in the feature space
+            2. **Assignment**: Assign each point to the nearest centroid using Euclidean distance (or a suitable distance metric like Manhattan (City Block distance), Minkowski distance, etc.):
+
+            \\[
+            d(x_i, \\mu_j) = \\sqrt{\\sum_{d=1}^{D} (x_{id} - \\mu_{jd})^2}
+            \\]
+
+            3. **Update**: Recompute centroids as the mean of assigned points
+            4. **Repeat**: Steps 2-3 until convergence
+            """),
+        "📐 Mathematical Formulation": mo.md("""
+            The objective function (inertia) that K-means minimizes:
+
+            \\[
+            J = \\sum_{i=1}^{n} \\min_{j \\in \\{1,\\ldots,k\\}} ||x_i - \\mu_j||^2
+            \\]
+
+            where:
+            - $x_i$ is the i-th data point
+            - $\\mu_j$ is the centroid of cluster $j$
+            """)
+    })
+    return (intro,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(f"""
+    ## Implementation Details
+
+    This implementation uses:
+
+    * **Distance Metric**: [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) (L2 norm)
+
+    * **Initialization**: [k-means++](https://en.wikipedia.org/wiki/K-means%2B%2B) by default for better starting positions
+    """)
+    return
+
+
+@app.cell
+def _(implementation):
+    implementation
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    implementation = mo.accordion({
+            "⚙️ Key Parameters": mo.md("""
+            - **n_clusters**: Number of clusters (k)
+            - **init**: Initialization method ('k-means++' or 'random')
+            - **max_iter**: Maximum iterations (default=300)
+            - **tol**: Tolerance for declaring convergence (default=1e-4)
+            - **n_init**: Number of initializations to try (default=10)
+            """)
+        })
+    return (implementation,)
+
+
+@app.cell
+def _(mo):
+    method = mo.ui.dropdown(
+        options=["Random", "Manual"],
+        value="Random",
+        label="Generation Method"
+    )
+    return (method,)
+
+
+@app.cell
+def _(method):
+    method
+    return
+
+
+@app.cell
+def _(mo):
+    points = mo.ui.number(value=200, start=10, stop=1000, label="Number of Points")
+    return (points,)
+
+
+@app.cell
+def _(mo):
+    k_clusters = mo.ui.number(value=5, start=2, stop=15, label="Number of Clusters")
+    k_clusters
+    return (k_clusters,)
+
+
+@app.cell
+def _(mo):
+    random_button = mo.ui.button(label="Generate new data")
+    return (random_button,)
+
+
+@app.cell
+def _(run_button):
+    run_button
+    return
+
+
+@app.cell
+def _(method, mo, random_button, widget):
+    random_button if method.value == "Random" else mo.md(
         f"""
-        marimo is a **reactive** Python notebook.
+        Draw a dataset of points, then click the run button above!
 
-        This means that unlike traditional notebooks, marimo notebooks **run
-        automatically** when you modify them or
-        interact with UI elements, like this slider: {slider}.
-
-        {"##" + "🍃" * slider.value}
+        {widget}
         """
     )
     return
 
 
-@app.cell(hide_code=True)
-def __(mo):
+@app.cell
+def _(mo):
+    run_button = mo.ui.run_button(label="Run k-means!")
+    return (run_button,)
+
+
+@app.cell
+def _(np, random, random_button):
+    random_button
+
+
+    def _generate_data():
+        n_clusters = random.randint(2, 10)
+        np.random.randn()
+
+        points = []
+        for i in range(n_clusters):
+            points.append(
+                np.random.randn(100, 2) * np.random.uniform(-2, 2)
+                + np.random.uniform(-2, 2)
+            )
+        return np.vstack(points)
+
+
+    generated_points = _generate_data()
+    return (generated_points,)
+
+
+@app.cell
+def _(
+    KMeans,
+    generated_points,
+    k_clusters,
+    method,
+    mo,
+    np,
+    pd,
+    px,
+    run_button,
+    widget,
+):
+    fig = (
+        px.scatter(
+            x=generated_points[:, 0],
+            y=generated_points[:, 1],
+            title="Random Points",
+        )
+        if method.value == "Random"
+        else None
+    )
+
+    if run_button.value and method.value == "Random":
+        kmeans = KMeans(n_clusters=k_clusters.value, random_state=42)
+        clusters = kmeans.fit_predict(generated_points)
+        df = pd.DataFrame(generated_points, columns=["x", "y"])
+        df["cluster"] = clusters
+
+        # Create main clustering plot
+        cluster_fig = px.scatter(
+            df,
+            x="x",
+            y="y",
+            color="cluster",
+            title="K-means Clustering Results",
+            color_continuous_scale="viridis",
+        )
+        cluster_fig.update(layout_coloraxis_showscale=False)
+
+        # Add centroids to the plot
+        centroids = kmeans.cluster_centers_
+        for i, centroid in enumerate(centroids):
+            cluster_fig.add_scatter(
+                x=[centroid[0]],
+                y=[centroid[1]],
+                mode="markers",
+                marker=dict(size=15, color="red", symbol="x"),
+                name=f"Centroid {i}",
+            )
+
+        # Create elbow curve
+        k_range = range(1, 11)
+        inertias = []
+        for k in k_range:
+            temp_kmeans = KMeans(n_clusters=k, random_state=42)
+            temp_kmeans.fit(generated_points)
+            inertias.append(temp_kmeans.inertia_)
+
+        elbow_fig = px.line(
+            x=list(k_range),
+            y=inertias,
+            title="Elbow Method Analysis",
+            labels={"x": "Number of Clusters (k)", "y": "Inertia"},
+        )
+        elbow_fig.add_scatter(
+            x=list(k_range), y=inertias, mode="markers", name="Inertia Points"
+        )
+
+        # Algorithm progress information
+        algo_info = mo.accordion(
+            {
+                "🔍 Algorithm Progress": mo.md(f"""
+                **Intermediate Steps:**
+
+                1. Initial random centroids placed
+
+                2. Points assigned to nearest centroid using Euclidean distance
+
+                3. Centroids recomputed {kmeans.n_iter_} times
+
+                4. Algorithm converged with final inertia of {kmeans.inertia_:.2f}
+            """)
+            }
+        )
+
+        callouts_only = mo.md(f"""
+        {mo.callout(f"Iterations: {kmeans.n_iter_}", kind="info")}
+        {mo.callout(f"Final inertia: {kmeans.inertia_:.2f}", kind="success")}
+        """)
+
+        elbow_analysis_steps = mo.accordion(
+            {
+                "📈 Interpreting the Elbow Curve": mo.md("""
+            The elbow curve helps determine the optimal number of clusters (k):
+
+            1. **Finding the elbow**: Look for the point where adding more clusters [gives diminishing returns](https://www.analyticsvidhya.com/blog/2021/01/in-depth-intuition-of-k-means-clustering-algorithm-in-machine-learning/#:~:text=The%20elbow%20method%20is%20a%20graphical%20representation%20of%20finding%20the,cluster%20and%20the%20cluster%20centroid.)
+            2. Keep trying various value of k in the Number of Clusters field to see how the inertia and iterations change
+            3. **Interpretation**:
+
+                   - Sharp decrease: Significant improvement in cluster fit
+
+                   - Leveling off: Minimal improvement in fit
+
+                   - Elbow point: Often the optimal k value
+            """),
+            }
+        )
+
+        # Display results vertically
+        fig = mo.vstack(
+            [
+                mo.hstack([cluster_fig, callouts_only]),
+                algo_info,
+                elbow_fig,
+                elbow_analysis_steps,
+            ]
+        )
+
+    elif run_button.value and method.value == "Manual":
+        df = widget.data_as_pandas
+        if not df.empty:
+            numeric_df = df.select_dtypes(include=[np.number])
+            kmeans = KMeans(n_clusters=k_clusters.value, random_state=42)
+            clusters = kmeans.fit_predict(numeric_df)
+            df["cluster"] = clusters
+
+            # Create main clustering plot
+            cluster_fig = px.scatter(
+                df,
+                x="x",
+                y="y",
+                color="cluster",
+                title="K-means Clustering (Manual Data)",
+                color_continuous_scale="viridis",
+            )
+
+            # Add centroids to the plot
+            centroids = kmeans.cluster_centers_
+            for i, centroid in enumerate(centroids):
+                cluster_fig.add_scatter(
+                    x=[centroid[0]],
+                    y=[centroid[1]],
+                    mode="markers",
+                    marker=dict(size=15, color="red", symbol="x"),
+                    name=f"Centroid {i}",
+                )
+
+            # Create elbow curve
+            k_range = range(1, 11)
+            inertias = []
+            for k in k_range:
+                temp_kmeans = KMeans(n_clusters=k, random_state=42)
+                temp_kmeans.fit(numeric_df)
+                inertias.append(temp_kmeans.inertia_)
+
+            elbow_fig = px.line(
+                x=list(k_range),
+                y=inertias,
+                title="Elbow Method Analysis (Manual Data)",
+                labels={"x": "Number of Clusters (k)", "y": "Inertia"},
+            )
+            elbow_fig.add_scatter(
+                x=list(k_range), y=inertias, mode="markers", name="Inertia Points"
+            )
+
+            # Algorithm progress information
+            algo_info = mo.accordion(
+                {
+                    "🔍 Algorithm Progress": mo.md(f"""
+                    **Intermediate Steps:**
+
+                    1. Initial random centroids placed
+
+                    2. Points assigned to nearest centroid using Euclidean distance
+
+                    3. Centroids recomputed {kmeans.n_iter_} times
+
+                    4. Algorithm converged with final inertia of {kmeans.inertia_:.2f}
+                """)
+                }
+            )
+
+            callouts_only = mo.md(f"""
+            {mo.callout(f"Iterations until convergence: {kmeans.n_iter_}", kind="info")}
+            {mo.callout(f"Final inertia: {kmeans.inertia_:.2f}", kind="success")}
+            """)
+
+            elbow_analysis_steps = mo.accordion(
+                {
+                    "📈 Interpreting the Elbow Curve": mo.md("""
+                The elbow curve helps determine the optimal number of clusters (k):
+
+                1. **Finding the elbow**: Look for the point where adding more clusters [gives diminishing returns](https://www.analyticsvidhya.com/blog/2021/01/in-depth-intuition-of-k-means-clustering-algorithm-in-machine-learning/#:~:text=The%20elbow%20method%20is%20a%20graphical%20representation%20of%20finding%20the,cluster%20and%20the%20cluster%20centroid.)
+                2. Keep trying various value of k in the Number of Clusters field to see how the inertia and iterations change
+                3. **Interpretation**:
+
+                       - Sharp decrease: Significant improvement in cluster fit
+
+                       - Leveling off: Minimal improvement in fit
+
+                       - Elbow point: Often the optimal k value
+                """),
+                }
+            )
+
+            # Display results vertically
+            fig = mo.vstack(
+                [
+                    mo.hstack([cluster_fig, callouts_only]),
+                    algo_info,
+                    elbow_fig,
+                    elbow_analysis_steps,
+                ]
+            )
+
+    fig
+    return (
+        algo_info,
+        callouts_only,
+        centroid,
+        centroids,
+        cluster_fig,
+        clusters,
+        df,
+        elbow_analysis_steps,
+        elbow_fig,
+        fig,
+        i,
+        inertias,
+        k,
+        k_range,
+        kmeans,
+        numeric_df,
+        temp_kmeans,
+    )
+
+
+@app.cell
+def _(ScatterWidget, mo):
+    widget = mo.ui.anywidget(ScatterWidget())
+    return (widget,)
+
+
+@app.cell
+def _(mo):
     mo.accordion(
         {
-            "Tip: disabling automatic execution": mo.md(
-                rf"""
-            marimo lets you disable automatic execution: just go into the
-            notebook settings and set
-
-            "Runtime > On Cell Change" to "lazy".
-
-            When the runtime is lazy, after running a cell, marimo marks its
-            descendants as stale instead of automatically running them. The
-            lazy runtime puts you in control over when cells are run, while
-            still giving guarantees about the notebook state.
-            """
-            )
-        }
+            "🎯 Common Applications": mo.md("""
+            - **Customer Segmentation**: Group similar customers for targeted marketing
+            - **Image Compression**: Reduce color palette by clustering similar colors
+            - **Document Classification**: Group similar documents by content features
+            - **Anomaly Detection**: Identify outliers and unusual patterns
+            """)
+        },
     )
     return
 
 
 @app.cell(hide_code=True)
-def __(mo):
+def _(mo):
     mo.md(
         """
-        Tip: This is a tutorial notebook. You can create your own notebooks
-        by entering `marimo edit` at the command line.
-        """
-    ).callout()
-    return
+        **Congratulations!**
 
+        You've successfully explored the k-Means clustering algorithm through this what we hope was an interactive experience. 
 
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        ## 1. Reactive execution
+        **Next Steps:**
 
-        A marimo notebook is made up of small blocks of Python code called
-        cells.
+        * **Problem solving:** Head over to the Problem Decsription tag and start solving the problem!
+        * **Experiment:** Try experimenting with different datasets, varying the number of clusters (kk), and observing the impact on the clustering results.
+        * **Explore:** Delve deeper into the nuances of k-Means, such as initialization strategies (e.g., k-means++), handling outliers, and its limitations.
+        * **Apply:** Apply k-Means to real-world problems in common practical applications (see the accordion above for more details).
 
-        marimo reads your cells and models the dependencies among them: whenever
-        a cell that defines a global variable  is run, marimo
-        **automatically runs** all cells that reference that variable.
-
-        Reactivity keeps your program state and outputs in sync with your code,
-        making for a dynamic programming environment that prevents bugs before they
-        happen.
+        **We hope this interactive experience has been a valuable learning journey. Happy clustering!**
         """
     )
     return
 
 
-@app.cell(hide_code=True)
-def __(changed, mo):
-    (
+@app.cell
+def _(mo):
+    callout = mo.callout(
         mo.md(
-            f"""
-            **✨ Nice!** The value of `changed` is now {changed}.
-
-            When you updated the value of the variable `changed`, marimo
-            **reacted** by running this cell automatically, because this cell
-            references the global variable `changed`.
-
-            Reactivity ensures that your notebook state is always
-            consistent, which is crucial for doing good science; it's also what
-            enables marimo notebooks to double as tools and  apps.
-            """
-        )
-        if changed
-        else mo.md(
-            """
-            **🌊 See it in action.** In the next cell, change the value of the
-            variable  `changed` to `True`, then click the run button.
-            """
-        )
+            "This interactive learning experience was designed to help you understand K-Means clustering, a fundamental unsupervised learning algorithm in AI/ML. We hope this resource proves valuable in your exploration of this important topic."
+        ),
+        kind="success",
     )
+    return (callout,)
+
+
+@app.cell
+def _(callout):
+    callout
     return
 
 
 @app.cell
-def __():
-    changed = False
-    return (changed,)
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.accordion(
-        {
-            "Tip: execution order": (
-                """
-                The order of cells on the page has no bearing on
-                the order in which cells are executed: marimo knows that a cell
-                reading a variable must run after the cell that  defines it. This
-                frees you to organize your code in the way that makes the most
-                sense for you.
-                """
-            )
-        }
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        **Global names must be unique.** To enable reactivity, marimo imposes a
-        constraint on how names appear in cells: no two cells may define the same
-        variable.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.accordion(
-        {
-            "Tip: encapsulation": (
-                """
-                By encapsulating logic in functions, classes, or Python modules,
-                you can minimize the number of global variables in your notebook.
-                """
-            )
-        }
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.accordion(
-        {
-            "Tip: private variables": (
-                """
-                Variables prefixed with an underscore are "private" to a cell, so
-                they can be defined by multiple cells.
-                """
-            )
-        }
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        ## 2. UI elements
-
-        Cells can output interactive UI elements. Interacting with a UI
-        element **automatically triggers notebook execution**: when
-        you interact with a UI element, its value is sent back to Python, and
-        every cell that references that element is re-run.
-
-        marimo provides a library of UI elements to choose from under
-        `marimo.ui`.
-        """
-    )
-    return
+def _():
+    import marimo as mo
+    return (mo,)
 
 
 @app.cell
-def __(mo):
-    mo.md("""**🌊 Some UI elements.** Try interacting with the below elements.""")
-    return
-
-
-@app.cell
-def __(mo):
-    icon = mo.ui.dropdown(["🍃", "🌊", "✨"], value="🍃")
-    return (icon,)
-
-
-@app.cell
-def __(icon, mo):
-    repetitions = mo.ui.slider(1, 16, label=f"number of {icon.value}: ")
-    return (repetitions,)
-
-
-@app.cell
-def __(icon, repetitions):
-    icon, repetitions
-    return
-
-
-@app.cell
-def __(icon, mo, repetitions):
-    mo.md("# " + icon.value * repetitions.value)
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        ## 3. marimo is just Python
-
-        marimo cells parse Python (and only Python), and marimo notebooks are
-        stored as pure Python files — outputs are _not_ included. There's no
-        magical syntax.
-
-        The Python files generated by marimo are:
-
-        - easily versioned with git, yielding minimal diffs
-        - legible for both humans and machines
-        - formattable using your tool of choice,
-        - usable as Python  scripts, with UI  elements taking their default
-        values, and
-        - importable by other modules (more on that in the future).
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        ## 4. Running notebooks as apps
-
-        marimo notebooks can double as apps. Click the app window icon in the
-        bottom-right to see this notebook in "app view."
-
-        Serve a notebook as an app with `marimo run` at the command-line.
-        Of course, you can use marimo just to level-up your
-        notebooking, without ever making apps.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        ## 5. The `marimo` command-line tool
-
-        **Creating and editing notebooks.** Use
-
-        ```
-        marimo edit
-        ```
-
-        in a terminal to start the marimo notebook server. From here
-        you can create a new notebook or edit existing ones.
-
-
-        **Running as apps.** Use
-
-        ```
-        marimo run notebook.py
-        ```
-
-        to start a webserver that serves your notebook as an app in read-only mode,
-        with code cells hidden.
-
-        **Convert a Jupyter notebook.** Convert a Jupyter notebook to a marimo
-        notebook using `marimo convert`:
-
-        ```
-        marimo convert your_notebook.ipynb > your_app.py
-        ```
-
-        **Tutorials.** marimo comes packaged with tutorials:
-
-        - `dataflow`: more on marimo's automatic execution
-        - `ui`: how to use UI elements
-        - `markdown`: how to write markdown, with interpolated values and
-           LaTeX
-        - `plots`: how plotting works in marimo
-        - `sql`: how to use SQL
-        - `layout`: layout elements in marimo
-        - `fileformat`: how marimo's file format works
-        - `markdown-format`: for using `.md` files in marimo
-        - `for-jupyter-users`: if you are coming from Jupyter
-
-        Start a tutorial with `marimo tutorial`; for example,
-
-        ```
-        marimo tutorial dataflow
-        ```
-
-        In addition to tutorials, we have examples in our
-        [our GitHub repo](https://www.github.com/marimo-team/marimo/tree/main/examples).
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        ## 6. The marimo editor
-
-        Here are some tips to help you get started with the marimo editor.
-        """
-    )
-    return
-
-
-@app.cell
-def __(mo, tips):
-    mo.accordion(tips)
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md("""## Finally, a fun fact""")
-    return
-
-
-@app.cell(hide_code=True)
-def __(mo):
-    mo.md(
-        """
-        The name "marimo" is a reference to a type of algae that, under
-        the right conditions, clumps together to form a small sphere
-        called a "marimo moss ball". Made of just strands of algae, these
-        beloved assemblages are greater than the sum of their parts.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def __():
-    tips = {
-        "Saving": (
-            """
-            **Saving**
-
-            - _Name_ your app using the box at the top of the screen, or
-              with `Ctrl/Cmd+s`. You can also create a named app at the
-              command line, e.g., `marimo edit app_name.py`.
-
-            - _Save_ by clicking the save icon on the bottom right, or by
-              inputting `Ctrl/Cmd+s`. By default marimo is configured
-              to autosave.
-            """
-        ),
-        "Running": (
-            """
-            1. _Run a cell_ by clicking the play ( ▷ ) button on the top
-            right of a cell, or by inputting `Ctrl/Cmd+Enter`.
-
-            2. _Run a stale cell_  by clicking the yellow run button on the
-            right of the cell, or by inputting `Ctrl/Cmd+Enter`. A cell is
-            stale when its code has been modified but not run.
-
-            3. _Run all stale cells_ by clicking the play ( ▷ ) button on
-            the bottom right of the screen, or input `Ctrl/Cmd+Shift+r`.
-            """
-        ),
-        "Console Output": (
-            """
-            Console output (e.g., `print()` statements) is shown below a
-            cell.
-            """
-        ),
-        "Creating, Moving, and Deleting Cells": (
-            """
-            1. _Create_ a new cell above or below a given one by clicking
-                the plus button to the left of the cell, which appears on
-                mouse hover.
-
-            2. _Move_ a cell up or down by dragging on the handle to the 
-                right of the cell, which appears on mouse hover.
-
-            3. _Delete_ a cell by clicking the trash bin icon. Bring it
-                back by clicking the undo button on the bottom right of the
-                screen, or with `Ctrl/Cmd+Shift+z`.
-            """
-        ),
-        "Disabling Automatic Execution": (
-            """
-            Via the notebook settings (gear icon) or footer panel, you
-            can disable automatic execution. This is helpful when
-            working with expensive notebooks or notebooks that have
-            side-effects like database transactions.
-            """
-        ),
-        "Disabling Cells": (
-            """
-            You can disable a cell via the cell context menu.
-            marimo will never run a disabled cell or any cells that depend on it.
-            This can help prevent accidental execution of expensive computations
-            when editing a notebook.
-            """
-        ),
-        "Code Folding": (
-            """
-            You can collapse or fold the code in a cell by clicking the arrow
-            icons in the line number column to the left, or by using keyboard
-            shortcuts.
-
-            Use the command palette (`Ctrl/Cmd+k`) or a keyboard shortcut to
-            quickly fold or unfold all cells.
-            """
-        ),
-        "Code Formatting": (
-            """
-            If you have [ruff](https://github.com/astral-sh/ruff) installed,
-            you can format a cell with the keyboard shortcut `Ctrl/Cmd+b`.
-            """
-        ),
-        "Command Palette": (
-            """
-            Use `Ctrl/Cmd+k` to open the command palette.
-            """
-        ),
-        "Keyboard Shortcuts": (
-            """
-            Open the notebook menu (top-right) or input `Ctrl/Cmd+Shift+h` to
-            view a list of all keyboard shortcuts.
-            """
-        ),
-        "Configuration": (
-            """
-           Configure the editor by clicking the gears icon near the top-right
-           of the screen.
-           """
-        ),
-    }
-    return (tips,)
+def _():
+    # import libraries
+    import random
+    import numpy as np
+    import pandas as pd
+    from sklearn.cluster import KMeans
+    import plotly.express as px
+    from drawdata import ScatterWidget
+    return KMeans, ScatterWidget, np, pd, px, random
 
 
 if __name__ == "__main__":

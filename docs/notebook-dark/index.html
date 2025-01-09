@@ -179,11 +179,12 @@ footer{
 button:has(.lucide-database) {
   display: none;
 }
-div:has(.lucide-database) {
+div.menu-item:has(.lucide-database) {
   display: none;
 }
-
-
+div.menu-item:has(svg[viewBox="0 0 448 512"]) {
+  display: none;
+}
 
   /* END CUSTOM */</style><marimo-code hidden="" data-show-code="true">import%20marimo%0A%0A__generated_with%20%3D%20%220.10.8%22%0Aapp%20%3D%20marimo.App(%0A%20%20%20%20css_file%3D%22%2FUsers%2Fadityakhalkar%2FLibrary%2FApplication%20Support%2Fmtheme%2Fthemes%2Fdeepml.css%22%2C%0A)%0A%0A%0A%40app.cell%0Adef%20_()%3A%0A%20%20%20%20import%20numpy%20as%20np%0A%20%20%20%20return%20(np%2C)%0A%0A%0Aif%20__name__%20%3D%3D%20%22__main__%22%3A%0A%20%20%20%20app.run()%0A</marimo-code></head>
   <body>
